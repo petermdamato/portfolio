@@ -10,6 +10,10 @@ export interface ProjectMetadata {
   tags?: string[];
   video?: string;
   iframe?: string;
+  externalUrl?: string;
+  partnerLogo?: string;
+  thumbnail?: string;
+  screenshots?: string[];
 }
 
 export interface Project extends ProjectMetadata {
@@ -17,6 +21,21 @@ export interface Project extends ProjectMetadata {
 }
 
 const contentDir = path.join(process.cwd(), "content");
+const publicDir = path.join(process.cwd(), "public");
+
+function getAutoScreenshots(slug: string): string[] {
+  if (!fs.existsSync(publicDir)) return [];
+  const filenames = fs.readdirSync(publicDir);
+
+  if (slug === "local-wealth-explorer") {
+    return filenames
+      .filter((name) => /^lwe_0.*\.(png|jpe?g|webp|gif)$/i.test(name))
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => `/${name}`);
+  }
+
+  return [];
+}
 
 export function getProjectSlugs(): string[] {
   if (!fs.existsSync(contentDir)) return [];
@@ -31,6 +50,11 @@ export function getProject(slug: string): Project | null {
 
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
+  const frontmatterScreenshots = Array.isArray(data.screenshots)
+    ? data.screenshots.filter((item): item is string => typeof item === "string")
+    : [];
+  const autoScreenshots = getAutoScreenshots(slug);
+  const screenshots = Array.from(new Set([...frontmatterScreenshots, ...autoScreenshots]));
 
   return {
     slug,
@@ -40,6 +64,10 @@ export function getProject(slug: string): Project | null {
     tags: data.tags || [],
     video: data.video,
     iframe: data.iframe,
+    externalUrl: data.externalUrl,
+    partnerLogo: data.partnerLogo,
+    thumbnail: data.thumbnail,
+    screenshots,
     content,
   };
 }
@@ -52,5 +80,17 @@ export function getAllProjects(): ProjectMetadata[] {
     .sort((a, b) => (a.date > b.date ? -1 : 1));
 
   // Return only metadata to keep payload small
-  return projects.map(({ content, ...metadata }) => metadata);
+  return projects.map((project) => ({
+    slug: project.slug,
+    title: project.title,
+    description: project.description,
+    date: project.date,
+    tags: project.tags,
+    video: project.video,
+    iframe: project.iframe,
+    externalUrl: project.externalUrl,
+    partnerLogo: project.partnerLogo,
+    thumbnail: project.thumbnail,
+    screenshots: project.screenshots,
+  }));
 }

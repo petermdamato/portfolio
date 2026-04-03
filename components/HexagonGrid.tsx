@@ -19,25 +19,42 @@ const ROW_HEIGHT = HEX_HEIGHT;
 const GAP = 3; // Gap between hexagons
 const FLIP_DURATION_MS = 700;
 const RETURN_DELAY_MS = 500;
+const INTRO_DELAY_MS = 300;
 
 function Hexagon({ 
   color, 
-  style 
+  style,
+  revealTransparent,
+  introDelayMs,
 }: { 
   color: { front: string; back: string }; 
   style: React.CSSProperties;
+  revealTransparent: boolean;
+  introDelayMs: number;
 }) {
   const [flipped, setFlipped] = useState(false);
   const hoverStartRef = useRef<number | null>(null);
   const returnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const introTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const baseFlippedRef = useRef(false);
 
   useEffect(() => {
+    if (revealTransparent) {
+      introTimeoutRef.current = setTimeout(() => {
+        baseFlippedRef.current = true;
+        setFlipped(true);
+      }, introDelayMs);
+    }
+
     return () => {
+      if (introTimeoutRef.current) {
+        clearTimeout(introTimeoutRef.current);
+      }
       if (returnTimeoutRef.current) {
         clearTimeout(returnTimeoutRef.current);
       }
     };
-  }, []);
+  }, [revealTransparent, introDelayMs]);
 
   const handleMouseEnter = () => {
     if (returnTimeoutRef.current) {
@@ -58,7 +75,7 @@ function Hexagon({
     }
 
     returnTimeoutRef.current = setTimeout(() => {
-      setFlipped(false);
+      setFlipped(baseFlippedRef.current);
       returnTimeoutRef.current = null;
     }, remainingForwardFlip + RETURN_DELAY_MS);
   };
@@ -100,7 +117,7 @@ function Hexagon({
           style={{
             WebkitBackfaceVisibility: "hidden",
             backfaceVisibility: "hidden",
-            backgroundColor: color.back,
+            backgroundColor: revealTransparent ? "transparent" : color.back,
             clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
             transform: "rotateY(180deg)",
           }}
@@ -131,13 +148,15 @@ export default function HexagonGrid() {
   // Calculate number of columns and rows needed to fill the screen
   const cols = Math.ceil(dimensions.width / COL_WIDTH) + 2;
   const rows = Math.ceil(dimensions.height / ROW_HEIGHT) + 2;
+  const revealHeights = [2, 3, 2, 3, 3, 3, 2, 3, 2];
+  const revealStartCol = (Math.floor(cols / 2) - 5) & ~1;
 
   const hexagons = [];
 
-  // Generate some random noise so the gradient isn't perfectly straight
-  // We use a simple seeded random approach based on row/col for consistency
+  // Deterministic noise for repeatable layout patterns
   const getNoise = (c: number, r: number) => {
-    return Math.sin(c * 12.9898 + r * 78.233) * 43758.5453 % 1;
+    const value = Math.sin(c * 12.9898 + r * 78.233) * 43758.5453;
+    return value - Math.floor(value);
   };
 
   for (let col = 0; col < cols; col++) {
@@ -169,10 +188,25 @@ export default function HexagonGrid() {
       const shouldSkip = distanceToBottom < 3 && getNoise(col, row + 100) > (distanceToBottom / 3);
 
       if (!shouldSkip) {
+        const revealColIndex = col - revealStartCol;
+        let revealTransparent = false;
+
+        if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
+          const revealHeight = revealHeights[revealColIndex];
+          const columnOffsetY = col % 2 === 1 ? ROW_HEIGHT / 2 : 0;
+          const centerRevealRow = Math.round((176 - columnOffsetY) / ROW_HEIGHT);
+          const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
+          revealTransparent = row >= revealStartRow && row < revealStartRow + revealHeight;
+        }
+
+        const introDelayMs = INTRO_DELAY_MS;
+
         hexagons.push(
           <Hexagon
             key={`${col}-${row}`}
             color={color}
+            revealTransparent={revealTransparent}
+            introDelayMs={introDelayMs}
             style={{
               left: x - HEX_WIDTH / 2,
               top: y - HEX_HEIGHT / 2,
@@ -184,13 +218,21 @@ export default function HexagonGrid() {
   }
 
   return (
-    <div className="w-full h-[350px] overflow-hidden relative bg-[#2a2626] border-b border-gray-200 dark:border-gray-800">
-      <div className="absolute inset-0">
+    <div className="w-full h-[350px] overflow-hidden relative bg-[#2a2626] border-b border-zinc-300">
+      <div className="absolute inset-0 z-0 flex items-center justify-center px-6 text-center pointer-events-none">
+        <div>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-100">
+            Peter D&apos;Amato
+          </h1>
+          <p className="font-body mt-4 text-sm sm:text-base md:text-lg text-zinc-300 tracking-wide">
+            Data Storyteller | Full-Stack Developer | AI Engineer
+          </p>
+        </div>
+      </div>
+
+      <div className="absolute inset-0 z-10">
         {hexagons}
       </div>
-      
-      {/* Subtle overlay gradient to blend it into the page */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#ffffff] dark:to-[#0a0a0a] pointer-events-none opacity-50" />
     </div>
   );
 }
