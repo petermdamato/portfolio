@@ -182,12 +182,16 @@ export default function HexagonGrid() {
       if (col % 2 === 1) {
         y += ROW_HEIGHT / 2;
       }
+      // Move the whole mass slightly upward.
+      y -= 8;
 
-      // Randomly skip some hexagons at the bottom to create a jagged edge
-      const distanceToBottom = rows - row;
-      const shouldSkip = distanceToBottom < 3 && getNoise(col, row + 100) > (distanceToBottom / 3);
+      // Build a coherent diagonal mass that rises as it moves right.
+      const xProgress = col / Math.max(1, cols - 1);
+      const centerLineY = 198 - xProgress * 92;
+      const halfBandHeight = 196;
+      const insideDiagonalMass = Math.abs(y - centerLineY) <= halfBandHeight;
 
-      if (!shouldSkip) {
+      if (insideDiagonalMass) {
         const revealColIndex = col - revealStartCol;
         let revealTransparent = false;
 
@@ -218,13 +222,13 @@ export default function HexagonGrid() {
   }
 
   return (
-    <div className="w-full h-[350px] overflow-hidden relative bg-[#2a2626] border-b border-zinc-300">
+    <div className="w-full h-[350px] overflow-visible relative bg-[#fafafa]">
       <div className="absolute inset-0 z-0 flex items-center justify-center px-6 text-center pointer-events-none">
         <div>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-100">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-900">
             Peter D&apos;Amato
           </h1>
-          <p className="font-body mt-4 text-sm sm:text-base md:text-lg text-zinc-300 tracking-wide">
+          <p className="font-body mt-4 text-sm sm:text-base md:text-lg text-zinc-700 tracking-wide">
             Data Storyteller | Full-Stack Developer | AI Engineer
           </p>
         </div>

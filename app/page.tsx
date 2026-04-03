@@ -19,26 +19,42 @@ export default function Home() {
   return (
     <>
       <HexagonGrid />
-      <section className="w-full border-y border-zinc-300 bg-[#fdfdfc]">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <p className="font-meta text-sm uppercase tracking-[0.22em] text-zinc-600">
-            Work published in
-          </p>
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            {publicationLogos.map((logo) => (
-              <div key={logo.src} className="relative h-7 w-32">
-                <Image
-                  src={logo.src}
-                  alt={logo.alt}
-                  fill
-                  sizes="128px"
-                  className="object-contain object-left opacity-85"
-                />
-              </div>
-            ))}
-          </div>
+<section className="w-full pt-12 mt-16">
+  <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    
+    {/* Label */}
+    <p className="font-meta text-xs tracking-[0.25em] uppercase text-zinc-500">
+      Work published in
+    </p>
+
+    {/* Logos Grid */}
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 w-full md:w-auto">
+      {publicationLogos.map((logo) => (
+        <div
+          key={logo.src}
+          className="relative h-10 w-32 flex items-center justify-center"
+        >
+          <Image
+            src={logo.src}
+            alt={logo.alt}
+            fill
+            className="
+              object-contain
+              opacity-70
+              grayscale
+              transition
+              duration-300
+              ease-out
+              hover:grayscale-0
+              hover:opacity-100
+            "
+          />
         </div>
-      </section>
+      ))}
+    </div>
+
+  </div>
+</section>
       <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-24 md:py-32">
         <header className="mb-24 max-w-3xl">
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-zinc-900 mb-6 leading-tight">
