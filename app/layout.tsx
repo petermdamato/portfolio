@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Sora, IBM_Plex_Mono } from "next/font/google";
+import { Space_Grotesk, Manrope, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const bodyFont = Inter({
+const bodyFont = Manrope({
   variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
-const displayFont = Sora({
+const displayFont = Space_Grotesk({
   variable: "--font-display",
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
 });
 

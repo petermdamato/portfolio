@@ -12,11 +12,11 @@ const colors = [
   { front: "#002020", back: "#001818" },
 ];
 
-const HEX_WIDTH = 80;
-const HEX_HEIGHT = HEX_WIDTH * (Math.sqrt(3) / 2);
-const COL_WIDTH = HEX_WIDTH * 0.75;
-const ROW_HEIGHT = HEX_HEIGHT;
-const GAP = 3; // Gap between hexagons
+const MOBILE_BREAKPOINT = 768;
+const DESKTOP_HEX_WIDTH = 80;
+const MOBILE_HEX_WIDTH = 60;
+const DESKTOP_GAP = 3;
+const MOBILE_GAP = 2;
 const FLIP_DURATION_MS = 700;
 const RETURN_DELAY_MS = 500;
 const INTRO_DELAY_MS = 300;
@@ -26,11 +26,17 @@ function Hexagon({
   style,
   revealTransparent,
   introDelayMs,
+  hexWidth,
+  hexHeight,
+  gap,
 }: { 
   color: { front: string; back: string }; 
   style: React.CSSProperties;
   revealTransparent: boolean;
   introDelayMs: number;
+  hexWidth: number;
+  hexHeight: number;
+  gap: number;
 }) {
   const [flipped, setFlipped] = useState(false);
   const hoverStartRef = useRef<number | null>(null);
@@ -85,8 +91,8 @@ function Hexagon({
       className="absolute"
       style={{
         ...style,
-        width: HEX_WIDTH - GAP,
-        height: HEX_HEIGHT - GAP,
+        width: hexWidth - gap,
+        height: hexHeight - gap,
         perspective: "1000px",
       }}
       onMouseEnter={handleMouseEnter}
@@ -145,9 +151,16 @@ export default function HexagonGrid() {
 
   if (dimensions.width === 0) return <div className="h-[350px] w-full bg-[#2a2626]" />;
 
+  const isMobile = dimensions.width < MOBILE_BREAKPOINT;
+  const hexWidth = isMobile ? MOBILE_HEX_WIDTH : DESKTOP_HEX_WIDTH;
+  const hexHeight = hexWidth * (Math.sqrt(3) / 2);
+  const colWidth = hexWidth * 0.75;
+  const rowHeight = hexHeight;
+  const gap = isMobile ? MOBILE_GAP : DESKTOP_GAP;
+
   // Calculate number of columns and rows needed to fill the screen
-  const cols = Math.ceil(dimensions.width / COL_WIDTH) + 2;
-  const rows = Math.ceil(dimensions.height / ROW_HEIGHT) + 2;
+  const cols = Math.ceil(dimensions.width / colWidth) + 2;
+  const rows = Math.ceil(dimensions.height / rowHeight) + 2;
   const revealHeights = [2, 3, 2, 3, 3, 3, 2, 3, 2];
   const revealStartCol = (Math.floor(cols / 2) - 5) & ~1;
 
@@ -175,30 +188,33 @@ export default function HexagonGrid() {
       
       const color = colors[colorIndex];
       
-      const x = col * COL_WIDTH;
-      let y = row * ROW_HEIGHT;
+      const x = col * colWidth;
+      let y = row * rowHeight;
+      const tileLeft = x - hexWidth / 2;
+      const tileRight = tileLeft + hexWidth;
       
       // Offset odd columns
       if (col % 2 === 1) {
-        y += ROW_HEIGHT / 2;
+        y += rowHeight / 2;
       }
       // Move the whole mass slightly upward.
       y -= 8;
 
       // Build a coherent diagonal mass that rises as it moves right.
-      const xProgress = col / Math.max(1, cols - 1);
-      const centerLineY = 198 - xProgress * 92;
+      const xProgress = col / Math.max(1, cols/2 - 1);
+      const centerLineY = 243 - xProgress * 92;
       const halfBandHeight = 196;
       const insideDiagonalMass = Math.abs(y - centerLineY) <= halfBandHeight;
+      const insideViewportX = !isMobile || (tileLeft >= 0 && tileRight <= dimensions.width);
 
-      if (insideDiagonalMass) {
+      if (insideDiagonalMass && insideViewportX) {
         const revealColIndex = col - revealStartCol;
         let revealTransparent = false;
 
         if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
           const revealHeight = revealHeights[revealColIndex];
-          const columnOffsetY = col % 2 === 1 ? ROW_HEIGHT / 2 : 0;
-          const centerRevealRow = Math.round((176 - columnOffsetY) / ROW_HEIGHT);
+          const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
+          const centerRevealRow = Math.round((176 - columnOffsetY) / rowHeight);
           const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
           revealTransparent = row >= revealStartRow && row < revealStartRow + revealHeight;
         }
@@ -211,9 +227,12 @@ export default function HexagonGrid() {
             color={color}
             revealTransparent={revealTransparent}
             introDelayMs={introDelayMs}
+            hexWidth={hexWidth}
+            hexHeight={hexHeight}
+            gap={gap}
             style={{
-              left: x - HEX_WIDTH / 2,
-              top: y - HEX_HEIGHT / 2,
+              left: tileLeft,
+              top: y - hexHeight / 2,
             }}
           />
         );
@@ -222,8 +241,8 @@ export default function HexagonGrid() {
   }
 
   return (
-    <div className="w-full h-[350px] overflow-visible relative bg-[#fafafa]">
-      <div className="absolute inset-0 z-0 flex items-center justify-center px-6 text-center pointer-events-none">
+    <div className="w-full h-[350px] relative bg-[#fafafa] overflow-visible">
+      <div className="absolute inset-0 z-20 md:z-0 flex items-center justify-center px-6 text-center pointer-events-none">
         <div>
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-900">
             Peter D&apos;Amato
@@ -234,7 +253,7 @@ export default function HexagonGrid() {
         </div>
       </div>
 
-      <div className="absolute inset-0 z-10">
+      <div className="absolute inset-0 z-10 opacity-[0.15] md:opacity-100">
         {hexagons}
       </div>
     </div>

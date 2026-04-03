@@ -3,6 +3,9 @@ import ProjectCard from "@/components/ProjectCard";
 import HexagonGrid from "@/components/HexagonGrid";
 import Image from "next/image";
 
+const CONTACT_EMAIL = "pete@petedamato.com";
+const LINKEDIN_URL = "https://www.linkedin.com/in/pmdamato/";
+
 const publicationLogos = [
   { src: "/new-york-times.png", alt: "New York Times" },
   { src: "/vice.png", alt: "Vice" },
@@ -55,15 +58,46 @@ export default function Home() {
 
   </div>
 </section>
-      <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-24 md:py-32">
-        <header className="mb-24 max-w-3xl">
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-zinc-900 mb-6 leading-tight">
+
+      <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 md:py-12">
+                <section className="mb-16 rounded-2xl border border-zinc-300 bg-[#fdfdfc] p-6 sm:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-semibold text-zinc-900">
+                Let&apos;s connect
+              </h2>
+              <p className="font-body mt-2 text-zinc-600">
+                Reach out for collaborations, consulting, or speaking opportunities.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="font-meta inline-flex items-center justify-center rounded-lg border border-zinc-900 px-4 py-2 text-xs uppercase tracking-[0.14em] text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-zinc-100"
+              >
+                Contact Me
+              </a>
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="font-meta inline-flex items-center justify-center rounded-lg border border-zinc-300 bg-zinc-100 px-4 py-2 text-xs uppercase tracking-[0.14em] text-zinc-800 transition-colors hover:bg-zinc-200"
+              >
+                LinkedIn ↗
+              </a>
+            </div>
+          </div>
+        </section>
+        <header className="mb-16 max-w-3xl">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-zinc-900 mb-6 leading-tight">
             Selected Work
-          </h1>
+          </h2>
           <p className="font-body text-xl md:text-2xl text-zinc-600 font-normal leading-relaxed">
             A collection of projects exploring data visualization, web development, and interactive maps.
           </p>
         </header>
+
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-20">
           {projects.map((p) => (
