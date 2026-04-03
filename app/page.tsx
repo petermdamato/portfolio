@@ -16,6 +16,51 @@ const publicationLogos = [
   { src: "/americas-quarterly.png", alt: "Americas Quarterly" }
 ];
 
+const skillsByCategory = [
+  {
+    category: "Programming",
+    skills: ["TypeScript", "Python", "SQL"],
+  },
+  {
+    category: "Frontend",
+    skills: ["React", "Next", "Vue", "Angular"],
+  },
+  {
+    category: "Data Visualization & Mapping",
+    skills: [
+      "D3.js",
+      "WebGL",
+      "deck.gl",
+      "Carto for React",
+      "Mapbox",
+    ],
+  },
+  {
+    category: "AI & Data Science",
+    skills: [
+      "pandas",
+      "scipy",
+      "nltk",
+      "BERT (Language Model)",
+      "Retrieval-Augmented Generation (RAG)",
+      "Named Entity Recognition (NER)",
+    ],
+  },
+  {
+    category: "Cloud & Data Infrastructure",
+    skills: [
+      "Microsoft Azure",
+      "Snowflake",
+      "Amazon Redshift",
+      "Cloud Engineering",
+    ],
+  },
+  {
+    category: "BI & Low-Code Tools",
+    skills: ["Retool", "Looker", "Tableau"],
+  },
+];
+
 export default function Home() {
   const projects = getAllProjects();
 
@@ -58,6 +103,32 @@ export default function Home() {
 
   </div>
 </section>
+
+      <section className="w-full pt-6">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="mb-4">
+          <p className="font-meta text-xs tracking-[0.25em] uppercase text-zinc-500">
+              Skills
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {skillsByCategory.map((group) => (
+              <article
+                key={group.category}
+                className="rounded-lg border border-zinc-200 bg-[#fdfdfc] p-3"
+              >
+                <h3 className="font-display text-base font-semibold text-zinc-900 mb-2">
+                  {group.category}
+                </h3>
+                <p className="font-body text-sm leading-relaxed text-zinc-700">
+                  {group.skills.join(", ")}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 md:py-12">
                 <section className="mb-16 rounded-2xl border border-zinc-300 bg-[#fdfdfc] p-6 sm:p-8">
