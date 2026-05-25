@@ -37,6 +37,19 @@ function getAutoScreenshots(slug: string): string[] {
   return [];
 }
 
+export function getProjectTypeLabel(slug: string): string {
+  if (slug === "real-estate-geospatial-intelligence-tool") {
+    return "Application";
+  }
+  if (slug === "static-graphics") {
+    return "Graphics";
+  }
+  if (slug === "flagship-enrollment-disparity-interactive") {
+    return "Visualization";
+  }
+  return "Visualization Dashboard";
+}
+
 export function getProjectSlugs(): string[] {
   if (!fs.existsSync(contentDir)) return [];
   return fs.readdirSync(contentDir)

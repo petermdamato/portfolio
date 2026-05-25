@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getProject, getProjectSlugs } from "@/lib/projects";
+import { getProject, getProjectSlugs, getProjectTypeLabel } from "@/lib/projects";
 import VideoEmbed from "@/components/VideoEmbed";
 import IframeEmbed from "@/components/IframeEmbed";
 import Link from "next/link";
@@ -36,7 +36,7 @@ export default async function ProjectPage({
 
       <header className="mb-16 md:mb-20">
         <p className="font-meta text-[10px] uppercase tracking-[0.22em] text-zinc-500 mb-4">
-          Case Study
+          {getProjectTypeLabel(slug)}
         </p>
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl text-zinc-900 leading-[0.95] mb-8">
           {project.title}

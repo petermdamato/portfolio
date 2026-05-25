@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ProjectMetadata } from "../lib/projects";
+import { ProjectMetadata, getProjectTypeLabel } from "../lib/projects";
 
 type ProjectCardVariant = "featured" | "horizontal-left" | "horizontal-right";
 
@@ -62,7 +62,7 @@ export default function ProjectCard({
       } ${!imageFirst && !isFeatured ? "md:order-1" : ""}`}
     >
       <p className="font-meta text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-3">
-        Case Study
+        {getProjectTypeLabel(slug)}
       </p>
       <h2
         className={`font-display text-zinc-900 leading-[1.05] mb-4 group-hover:text-[#3e0000] transition-colors ${
