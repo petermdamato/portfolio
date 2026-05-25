@@ -15,7 +15,6 @@ const publicationLogos = [
   { src: "/vice.png", alt: "Vice" },
   { src: "/nbc.png", alt: "NBC News" },
   { src: "/hechinger.png", alt: "Hechinger Report" },
-  { src: "/dissent.png", alt: "Dissent" },
   { src: "/sports-illustrated.png", alt: "Sports Illustrated" },
   { src: "/americas-quarterly.png", alt: "Americas Quarterly" },
 ];

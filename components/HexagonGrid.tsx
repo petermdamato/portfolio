@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const colors = [
   { front: "#3e0000", back: "#2e0000" },
@@ -17,130 +17,54 @@ const DESKTOP_HEX_WIDTH = 80;
 const MOBILE_HEX_WIDTH = 60;
 const DESKTOP_GAP = 3;
 const MOBILE_GAP = 2;
-const FLIP_DURATION_MS = 700;
-const RETURN_DELAY_MS = 500;
-const INTRO_DELAY_MS = 300;
+const BANNER_HEIGHT = 420;
+const NAME_ZONE_OPACITY = 0.2;
 
-function Hexagon({ 
-  color, 
+function StaticHexagon({
+  color,
   style,
-  revealTransparent,
-  introDelayMs,
   hexWidth,
   hexHeight,
   gap,
-}: { 
-  color: { front: string; back: string }; 
+  opacity = 1,
+}: {
+  color: { front: string; back: string };
   style: React.CSSProperties;
-  revealTransparent: boolean;
-  introDelayMs: number;
   hexWidth: number;
   hexHeight: number;
   gap: number;
+  opacity?: number;
 }) {
-  const [flipped, setFlipped] = useState(false);
-  const hoverStartRef = useRef<number | null>(null);
-  const returnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const introTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const baseFlippedRef = useRef(false);
-
-  useEffect(() => {
-    if (revealTransparent) {
-      introTimeoutRef.current = setTimeout(() => {
-        baseFlippedRef.current = true;
-        setFlipped(true);
-      }, introDelayMs);
-    }
-
-    return () => {
-      if (introTimeoutRef.current) {
-        clearTimeout(introTimeoutRef.current);
-      }
-      if (returnTimeoutRef.current) {
-        clearTimeout(returnTimeoutRef.current);
-      }
-    };
-  }, [revealTransparent, introDelayMs]);
-
-  const handleMouseEnter = () => {
-    if (returnTimeoutRef.current) {
-      clearTimeout(returnTimeoutRef.current);
-      returnTimeoutRef.current = null;
-    }
-    hoverStartRef.current = Date.now();
-    setFlipped(true);
-  };
-
-  const handleMouseLeave = () => {
-    const hoverStartedAt = hoverStartRef.current ?? Date.now();
-    const elapsed = Date.now() - hoverStartedAt;
-    const remainingForwardFlip = Math.max(0, FLIP_DURATION_MS - elapsed);
-
-    if (returnTimeoutRef.current) {
-      clearTimeout(returnTimeoutRef.current);
-    }
-
-    returnTimeoutRef.current = setTimeout(() => {
-      setFlipped(baseFlippedRef.current);
-      returnTimeoutRef.current = null;
-    }, remainingForwardFlip + RETURN_DELAY_MS);
-  };
-
   return (
     <div
-      className="absolute"
+      className="absolute pointer-events-none"
       style={{
         ...style,
         width: hexWidth - gap,
         height: hexHeight - gap,
-        perspective: "1000px",
+        opacity,
       }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div
-        className="w-full h-full relative transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+        className="absolute inset-0"
         style={{
-          WebkitTransformStyle: "preserve-3d",
-          transformStyle: "preserve-3d",
-          willChange: "transform",
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          backgroundColor: color.front,
+          clipPath:
+            "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
         }}
-      >
-        {/* Front Face */}
-        <div
-          className="absolute inset-0 transition-colors duration-300"
-          style={{
-            WebkitBackfaceVisibility: "hidden",
-            backfaceVisibility: "hidden",
-            backgroundColor: color.front,
-            clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-          }}
-        />
-        {/* Back Face */}
-        <div
-          className="absolute inset-0 transition-colors duration-300"
-          style={{
-            WebkitBackfaceVisibility: "hidden",
-            backfaceVisibility: "hidden",
-            backgroundColor: revealTransparent ? "transparent" : color.back,
-            clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-            transform: "rotateY(180deg)",
-          }}
-        />
-      </div>
+      />
     </div>
   );
 }
 
 export default function HexagonGrid() {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 420 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: BANNER_HEIGHT });
 
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
-        height: 420
+        height: BANNER_HEIGHT,
       });
     };
 
@@ -149,7 +73,9 @@ export default function HexagonGrid() {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  if (dimensions.width === 0) return <div className="h-[420px] w-full bg-[#fafafa]" />;
+  if (dimensions.width === 0) {
+    return <div className="h-[420px] w-full bg-[#fafafa]" />;
+  }
 
   const isMobile = dimensions.width < MOBILE_BREAKPOINT;
   const hexWidth = isMobile ? MOBILE_HEX_WIDTH : DESKTOP_HEX_WIDTH;
@@ -158,90 +84,93 @@ export default function HexagonGrid() {
   const rowHeight = hexHeight;
   const gap = isMobile ? MOBILE_GAP : DESKTOP_GAP;
 
-  // Calculate number of columns and rows needed to fill the screen
   const cols = Math.ceil(dimensions.width / colWidth) + 2;
-  const rows = Math.ceil(dimensions.height / rowHeight) + 2;
+  const rows = Math.ceil(dimensions.height / rowHeight) + 4;
+
   const revealHeights = [2, 3, 2, 3, 3, 3, 2, 3, 2];
   const revealStartCol = (Math.floor(cols / 2) - 5) & ~1;
 
   const hexagons = [];
 
-  // Deterministic noise for repeatable layout patterns
   const getNoise = (c: number, r: number) => {
     const value = Math.sin(c * 12.9898 + r * 78.233) * 43758.5453;
     return value - Math.floor(value);
   };
 
+  const textCenterY = BANNER_HEIGHT * 0.46;
+  const rowBelowNameY = textCenterY + rowHeight * 1.35;
+
   for (let col = 0; col < cols; col++) {
     for (let row = 0; row < rows; row++) {
-      // Base progress on column position
       let colorProgress = col / (cols - 1);
-      
-      // Add Perlin-like noise to the progress so the edges blend organically
-      const noise = getNoise(col, row) * 0.15 - 0.075; // +/- 7.5% noise
+      const noise = getNoise(col, row) * 0.15 - 0.075;
       colorProgress = Math.max(0, Math.min(1, colorProgress + noise));
 
       const colorIndex = Math.min(
         Math.floor(colorProgress * colors.length),
         colors.length - 1
       );
-      
+
       const color = colors[colorIndex];
-      
+
       const x = col * colWidth;
       let y = row * rowHeight;
-      const tileLeft = x - hexWidth / 2;
-      const tileRight = tileLeft + hexWidth;
-      
-      // Offset odd columns
+
       if (col % 2 === 1) {
         y += rowHeight / 2;
       }
-      // Move the whole mass slightly upward.
-      y -= 8;
 
-      // Build a coherent diagonal mass that rises as it moves right.
-      const xProgress = col / Math.max(1, cols/2 - 1);
-      const centerLineY = 243 - xProgress * 92;
-      const halfBandHeight = 196;
-      const insideDiagonalMass = Math.abs(y - centerLineY) <= halfBandHeight;
-      const insideViewportX = !isMobile || (tileLeft >= 0 && tileRight <= dimensions.width);
+      y -= 4;
 
-      if (insideDiagonalMass && insideViewportX) {
-        const revealColIndex = col - revealStartCol;
-        let revealTransparent = false;
+      const xProgress = col / Math.max(1, cols / 2 - 1);
+      const centerLineY = 238 - xProgress * 92;
+      const halfBandHeight = 188;
+      const insideDiagonalMass =
+        Math.abs(y - centerLineY) <= halfBandHeight ||
+        Math.abs(y - rowBelowNameY) <= rowHeight * 0.55;
 
-        if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
-          const revealHeight = revealHeights[revealColIndex];
-          const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
-          const centerRevealRow = Math.round((210 - columnOffsetY) / rowHeight);
-          const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
-          revealTransparent = row >= revealStartRow && row < revealStartRow + revealHeight;
-        }
+      const tileLeft = x - hexWidth / 2;
+      const tileRight = tileLeft + hexWidth;
+      const insideViewportX =
+        !isMobile || (tileLeft >= 0 && tileRight <= dimensions.width);
 
-        const introDelayMs = INTRO_DELAY_MS;
+      if (!insideDiagonalMass || !insideViewportX) continue;
 
-        hexagons.push(
-          <Hexagon
-            key={`${col}-${row}`}
-            color={color}
-            revealTransparent={revealTransparent}
-            introDelayMs={introDelayMs}
-            hexWidth={hexWidth}
-            hexHeight={hexHeight}
-            gap={gap}
-            style={{
-              left: tileLeft,
-              top: y - hexHeight / 2,
-            }}
-          />
-        );
+      const revealColIndex = col - revealStartCol;
+      let isRevealZone = false;
+
+      if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
+        const revealHeight = revealHeights[revealColIndex];
+        const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
+        const centerRevealRow = Math.round((textCenterY - columnOffsetY) / rowHeight);
+        const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
+        isRevealZone =
+          row >= revealStartRow && row < revealStartRow + revealHeight;
       }
+
+      hexagons.push(
+        <StaticHexagon
+          key={`${col}-${row}`}
+          color={color}
+          hexWidth={hexWidth}
+          hexHeight={hexHeight}
+          gap={gap}
+          opacity={isRevealZone ? NAME_ZONE_OPACITY : 1}
+          style={{
+            left: tileLeft,
+            top: y - hexHeight / 2,
+          }}
+        />
+      );
     }
   }
 
   return (
-    <div className="w-full h-[420px] relative bg-[#fafafa] overflow-visible">
+    <div className="w-full h-[420px] relative bg-[#fafafa] overflow-hidden">
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.15] md:opacity-100">
+        {hexagons}
+      </div>
+
       <div className="absolute inset-0 z-20 flex items-center justify-center px-6 text-center pointer-events-none">
         <div className="max-w-5xl">
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-zinc-900 leading-[0.95]">
@@ -251,10 +180,6 @@ export default function HexagonGrid() {
             Data Storyteller · Full-Stack Developer · AI Engineer
           </p>
         </div>
-      </div>
-
-      <div className="absolute inset-0 z-10 opacity-[0.15] md:opacity-100">
-        {hexagons}
       </div>
     </div>
   );
