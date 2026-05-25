@@ -151,7 +151,7 @@ export default function Home() {
 
           {/* Desktop (>800px): published in | skills + featured row | grid below */}
           <div className="hidden min-[801px]:flex min-[801px]:gap-x-8">
-            <PublishedInColumn className="w-[140px] shrink-0 border-r border-zinc-900 pr-6 self-start" />
+            <PublishedInColumn className="w-[168px] shrink-0 border-r border-zinc-900 pr-6 self-start" />
 
             <div className="flex-1 min-w-0 flex flex-col gap-6">
               <div className="flex gap-8">
