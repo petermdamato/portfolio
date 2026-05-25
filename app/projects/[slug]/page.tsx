@@ -111,14 +111,15 @@ export default async function ProjectPage({
             {project.screenshots.map((src) => (
               <div
                 key={src}
-                className="relative aspect-[16/10] overflow-hidden bg-zinc-100"
+                className="w-full overflow-hidden bg-zinc-100 border border-zinc-200/80"
               >
                 <Image
                   src={src}
                   alt={`${project.title} screenshot`}
-                  fill
+                  width={1600}
+                  height={1000}
                   sizes="(min-width: 1024px) 900px, 86vw"
-                  className="object-cover"
+                  className="w-full h-auto"
                 />
               </div>
             ))}
