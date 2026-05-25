@@ -134,13 +134,13 @@ function Hexagon({
 }
 
 export default function HexagonGrid() {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 350 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 420 });
 
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
-        height: 350 // Fixed height for the banner
+        height: 420
       });
     };
 
@@ -149,7 +149,7 @@ export default function HexagonGrid() {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  if (dimensions.width === 0) return <div className="h-[350px] w-full bg-[#2a2626]" />;
+  if (dimensions.width === 0) return <div className="h-[420px] w-full bg-[#fafafa]" />;
 
   const isMobile = dimensions.width < MOBILE_BREAKPOINT;
   const hexWidth = isMobile ? MOBILE_HEX_WIDTH : DESKTOP_HEX_WIDTH;
@@ -214,7 +214,7 @@ export default function HexagonGrid() {
         if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
           const revealHeight = revealHeights[revealColIndex];
           const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
-          const centerRevealRow = Math.round((176 - columnOffsetY) / rowHeight);
+          const centerRevealRow = Math.round((210 - columnOffsetY) / rowHeight);
           const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
           revealTransparent = row >= revealStartRow && row < revealStartRow + revealHeight;
         }
@@ -241,14 +241,14 @@ export default function HexagonGrid() {
   }
 
   return (
-    <div className="w-full h-[350px] relative bg-[#fafafa] overflow-visible">
-      <div className="absolute inset-0 z-20 md:z-0 flex items-center justify-center px-6 text-center pointer-events-none">
-        <div>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-900">
+    <div className="w-full h-[420px] relative bg-[#fafafa] overflow-visible">
+      <div className="absolute inset-0 z-20 flex items-center justify-center px-6 text-center pointer-events-none">
+        <div className="max-w-5xl">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-zinc-900 leading-[0.95]">
             Peter D&apos;Amato
           </h1>
-          <p className="font-body mt-4 text-sm sm:text-base md:text-lg text-zinc-700 tracking-wide">
-            Data Storyteller | Full-Stack Developer | AI Engineer
+          <p className="font-body mt-5 text-sm sm:text-base md:text-lg text-zinc-700 max-w-2xl mx-auto">
+            Data Storyteller · Full-Stack Developer · AI Engineer
           </p>
         </div>
       </div>

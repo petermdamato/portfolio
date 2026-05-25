@@ -1,6 +1,6 @@
 export default function IframeEmbed({ src }: { src: string }) {
   return (
-    <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-sm border border-zinc-300 bg-zinc-100 transition-shadow duration-500 hover:shadow-md">
+    <div className="w-full h-[600px] overflow-hidden border border-zinc-900 bg-zinc-100">
       <iframe
         src={src}
         className="w-full h-full border-none"
