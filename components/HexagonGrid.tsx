@@ -98,7 +98,6 @@ export default function HexagonGrid() {
   };
 
   const textCenterY = BANNER_HEIGHT * 0.46;
-  const rowBelowNameY = textCenterY + rowHeight * 1.35;
 
   for (let col = 0; col < cols; col++) {
     for (let row = 0; row < rows; row++) {
@@ -122,12 +121,19 @@ export default function HexagonGrid() {
 
       y -= 4;
 
-      const xProgress = col / Math.max(1, cols / 2 - 1);
-      const centerLineY = 238 - xProgress * 92;
-      const halfBandHeight = 188;
-      const insideDiagonalMass =
-        Math.abs(y - centerLineY) <= halfBandHeight ||
-        Math.abs(y - rowBelowNameY) <= rowHeight * 0.55;
+      // ~30° ribbon angle — matches honeycomb column stagger (rowHeight/2 per column)
+      const hexRisePerCol = rowHeight / 2;
+      const ribbonBaseY = BANNER_HEIGHT * 0.86;
+      const centerLineY = ribbonBaseY - col * hexRisePerCol;
+
+      const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
+      const centerRow = Math.round((centerLineY - columnOffsetY) / rowHeight);
+      const innerRowRadius = 2;
+      const topEdgeRows = 1;
+      const bottomEdgeRows = 1;
+      const rowMin = centerRow - innerRowRadius - topEdgeRows;
+      const rowMax = centerRow + innerRowRadius + bottomEdgeRows;
+      const insideDiagonalMass = row >= rowMin && row <= rowMax;
 
       const tileLeft = x - hexWidth / 2;
       const tileRight = tileLeft + hexWidth;
@@ -141,7 +147,6 @@ export default function HexagonGrid() {
 
       if (revealColIndex >= 0 && revealColIndex < revealHeights.length) {
         const revealHeight = revealHeights[revealColIndex];
-        const columnOffsetY = col % 2 === 1 ? rowHeight / 2 : 0;
         const centerRevealRow = Math.round((textCenterY - columnOffsetY) / rowHeight);
         const revealStartRow = centerRevealRow - Math.floor(revealHeight / 2);
         isRevealZone =
