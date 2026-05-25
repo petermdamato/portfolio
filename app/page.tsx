@@ -67,15 +67,12 @@ const skillsByCategory = [
 function PublishedInColumn({ className = "" }: { className?: string }) {
   return (
     <aside className={className}>
-      <p className="font-meta text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-6 min-[801px]:[writing-mode:vertical-rl] min-[801px]:rotate-180 min-[801px]:h-36 min-[801px]:mb-0">
+      <p className="font-meta text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-4">
         Work published in
       </p>
-      <div className="flex flex-wrap min-[801px]:flex-col gap-6 min-[801px]:gap-7 min-[801px]:mt-6">
+      <div className="flex flex-wrap gap-x-6 gap-y-5">
         {publicationLogos.map((logo) => (
-          <div
-            key={logo.src}
-            className="relative h-8 w-28 min-[801px]:w-24 shrink-0"
-          >
+          <div key={logo.src} className="relative h-8 w-28 shrink-0">
             <Image
               src={logo.src}
               alt={logo.alt}
@@ -85,6 +82,9 @@ function PublishedInColumn({ className = "" }: { className?: string }) {
           </div>
         ))}
       </div>
+      <p className="font-meta text-[10px] uppercase tracking-[0.24em] text-zinc-500 mt-5">
+        And More
+      </p>
     </aside>
   );
 }
@@ -149,37 +149,18 @@ export default function Home() {
             </section>
           </div>
 
-          {/*
-            Desktop grid (>800px):
+          {/* Desktop (>800px): published in | skills + featured row | grid below */}
+          <div className="hidden min-[801px]:flex min-[801px]:gap-x-8">
+            <PublishedInColumn className="w-[140px] shrink-0 border-r border-zinc-900 pr-6 self-start" />
 
-            | Published In | Skills  | Featured Work      |
-            | (spans both  |         |                    |
-            |  rows)       |         | Other Work 2×2     |
-          */}
-          <div
-            className="hidden min-[801px]:grid min-[801px]:gap-x-8 min-[801px]:gap-y-6"
-            style={{
-              gridTemplateColumns: "140px 220px 1fr",
-              gridTemplateRows: "auto auto",
-              gridTemplateAreas: `
-                "published skills featured"
-                "published .      grid"
-              `,
-            }}
-          >
-            {/* Col 1 — full height */}
-            <PublishedInColumn className="border-r border-zinc-900 pr-6 [grid-area:published]" />
+            <div className="flex-1 min-w-0 flex flex-col gap-6">
+              <div className="flex gap-8">
+                <SkillsBlock className="w-[220px] shrink-0 border-r border-zinc-900 pr-6 self-start" />
+                <div className="flex-1 min-w-0">
+                  {featured && <FeaturedProject {...featured} />}
+                </div>
+              </div>
 
-            {/* Col 2 row 1 — skills beside featured */}
-            <SkillsBlock className="border-r border-zinc-900 pr-6 [grid-area:skills] self-start" />
-
-            {/* Col 3 row 1 — featured explore data */}
-            <div className="[grid-area:featured]">
-              {featured && <FeaturedProject {...featured} />}
-            </div>
-
-            {/* Col 3 row 2 — 2×2 other work */}
-            <div className="[grid-area:grid]">
               <div className="grid grid-cols-2 gap-4">
                 {gridProjects.map((project, index) => (
                   <GridProjectTile
